@@ -250,7 +250,7 @@ const changeSort = async (
     if (env.value.version > "2.14.48") {
       console.log(`new sort > v2.14.48`);
       const nameSortArray = dataValue.map((k: { name: string }) => k.name);
-      console.log(nameSortArray);
+      // console.log(nameSortArray);
       sortDataRes = await subsApi.newSortSub(
         subColl,
         JSON.parse(JSON.stringify(toRaw(nameSortArray)))
