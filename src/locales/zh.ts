@@ -320,7 +320,7 @@ export default {
         },
         subInfoUrl: {
           label: '查询流量信息订阅链接',
-          placeholder: '用于传递流量信息',
+          placeholder: '传递流量信息',
         },
         subInfoUserAgent: {
           label: '查询流量信息 User-Agent',
