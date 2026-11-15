@@ -28,7 +28,7 @@ import { getFlowsUrlList } from "@/utils/getFlowsUrlList";
 import { initStores } from "@/utils/initApp";
 import { storeToRefs } from "pinia";
 import { ref, watchEffect, onMounted, computed } from "vue";
-import { useHostAPI, getHostAPIUrl } from "@/hooks/useHostAPI"; //onMounted
+import { useHostAPI } from "@/hooks/useHostAPI"; //onMounted
 import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 
@@ -213,23 +213,6 @@ const processUrlApiConfig = async () => {
         }
       } catch (e) {
         console.error('Error initializing stores:', e);
-        // 如果当前使用的后端不是 defaultAPI 且连接失败，自动回退到 defaultAPI 重试
-        const currentApiUrl = getHostAPIUrl();
-        const defaultApiUrl = useHostAPI().defaultAPI;
-        if (currentApiUrl !== defaultApiUrl) {
-          try {
-            await globalStore.setHostAPI(defaultApiUrl);
-            const hasBackendEnv = Object.keys(globalStore.env).length > 0 && globalStore.env.backend;
-            if (hasBackendEnv && globalStore.fetchResult) {
-              showMagicPathDialog.value = false;
-              localStorage.setItem('backendConfigured', 'true');
-              isBackendCheckInProgress.value = false;
-              return;
-            }
-          } catch (retryErr) {
-            console.error('Retry with defaultAPI failed:', retryErr);
-          }
-        }
         globalStore.setFetchResult(false);
 
         // 检查用户是否跳过了当前连接检测周期

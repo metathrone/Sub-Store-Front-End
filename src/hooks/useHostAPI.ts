@@ -7,7 +7,7 @@ import { initStores } from '@/utils/initApp';
 import { isValidShareBaseUrl, normalizeShareBaseUrl } from '@/utils/share';
 
 const lsKey = 'hostAPI';
-const defaultAPI = import.meta.env.VITE_API_URL || 'https://sub.store.rushia.eu.org/rushia_ceb7e2b7a09e595e';
+const defaultAPI = import.meta.env.VITE_API_URL || 'https://sub.store';
 
 const normalizeHostApiUrl = (url: string) => {
   return url.replace(/\/$/, '');
@@ -31,24 +31,12 @@ const getHostAPI = (): HostAPIStorage => {
   const item = localStorage.getItem(lsKey);
   if (item) {
     const parsed = JSON.parse(item) as HostAPIStorage;
-    let apis = Array.isArray(parsed.apis)
-      ? parsed.apis.map(normalizeHostAPIItem)
-      : [];
-    let modified = false;
-    apis = apis.map(api => {
-      if (api.url === 'https://sub.store' || api.url === 'https://sub.store.rushia.eu.org') {
-        modified = true;
-        return { ...api, url: defaultAPI };
-      }
-      return api;
-    });
     const normalized = {
       current: parsed.current || '',
-      apis,
+      apis: Array.isArray(parsed.apis)
+        ? parsed.apis.map(normalizeHostAPIItem)
+        : [],
     };
-    if (modified) {
-      setHostAPI(normalized);
-    }
     return normalized;
   } else {
     setHostAPI({
@@ -60,11 +48,10 @@ const getHostAPI = (): HostAPIStorage => {
 };
 export const getHostAPIUrl = (): string => {
   const { current, apis } = getHostAPI();
-  const url = apis.find(api => api.name === current)?.url;
-  if (!url || url === 'https://sub.store' || url === 'https://sub.store.rushia.eu.org') {
-    return defaultAPI.replace(/\/$/, '');
-  }
-  return url.replace(/\/$/, '');
+  return (
+    apis.find(api => api.name === current)?.url ||
+    defaultAPI
+  ).replace(/\/$/, ''); // 去除末尾斜杠;
 };
 
 export const getHostAPIShareBaseUrl = (): string => {
