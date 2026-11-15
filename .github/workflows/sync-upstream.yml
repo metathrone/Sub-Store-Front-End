@@ -1,0 +1,33 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    # 每天 UTC 03:00 (北京时间 11:00) 自动检查并同步上游最新代码
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Sync Master from Upstream
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync upstream
+        run: |
+          git remote add upstream https://github.com/sub-store-org/Sub-Store-Front-End.git
+          git fetch upstream master
+          git merge --no-edit -X theirs upstream/master
+          git push origin master
