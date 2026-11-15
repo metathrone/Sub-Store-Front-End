@@ -31,12 +31,24 @@ const getHostAPI = (): HostAPIStorage => {
   const item = localStorage.getItem(lsKey);
   if (item) {
     const parsed = JSON.parse(item) as HostAPIStorage;
+    let apis = Array.isArray(parsed.apis)
+      ? parsed.apis.map(normalizeHostAPIItem)
+      : [];
+    let modified = false;
+    apis = apis.map(api => {
+      if (api.url === 'https://sub.store' || api.url === 'https://sub.store.rushia.eu.org') {
+        modified = true;
+        return { ...api, url: defaultAPI };
+      }
+      return api;
+    });
     const normalized = {
       current: parsed.current || '',
-      apis: Array.isArray(parsed.apis)
-        ? parsed.apis.map(normalizeHostAPIItem)
-        : [],
+      apis,
     };
+    if (modified) {
+      setHostAPI(normalized);
+    }
     return normalized;
   } else {
     setHostAPI({
@@ -48,10 +60,11 @@ const getHostAPI = (): HostAPIStorage => {
 };
 export const getHostAPIUrl = (): string => {
   const { current, apis } = getHostAPI();
-  return (
-    apis.find(api => api.name === current)?.url ||
-    defaultAPI
-  ).replace(/\/$/, ''); // 去除末尾斜杠;
+  const url = apis.find(api => api.name === current)?.url;
+  if (!url || url === 'https://sub.store' || url === 'https://sub.store.rushia.eu.org') {
+    return defaultAPI.replace(/\/$/, '');
+  }
+  return url.replace(/\/$/, '');
 };
 
 export const getHostAPIShareBaseUrl = (): string => {
