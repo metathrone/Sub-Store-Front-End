@@ -1,5 +1,5 @@
 {
-  "name": "sub-store-front-end",
+  "name": "sub-store-frontend",
   "version": "2.34.3",
   "private": true,
   "packageManager": "pnpm@11.0.9",
